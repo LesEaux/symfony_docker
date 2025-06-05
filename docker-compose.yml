@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  ################################
+  # 1) Service MySQL / MariaDB   #
+  ################################
+  db:
+    image: mysql:8.0
+    container_name: symfony_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfonypass
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"   # Expose localement si besoin, sinon retirer
+
+  ##############################
+  # 2) Service PHP-FPM (app)   #
+  ##############################
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony_php
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html:delegated
+    environment:
+      DATABASE_URL: "mysql://symfony:symfonypass@db:3306/symfony?serverVersion=8.0"
+    ports:
+      - "9000:9000"  # Expose pour Nginx
+    depends_on:
+      - db
+
+  ################################
+  # 3) Service Nginx (reverse)   #
+  ################################
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: symfony_nginx
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
+    ports:
+      - "80:80"
+      #- "443:443"     # À configurer si SSL
+    depends_on:
+      - php
+
+  #####################################
+  # 4) (Optionnel) phpMyAdmin         #
+  #####################################
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: symfony_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_USER: symfony
+      PMA_PASSWORD: symfonypass
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+
+volumes:
+  db_data:
