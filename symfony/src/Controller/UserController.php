@@ -6,8 +6,9 @@ use App\Entity\User;
 use App\Form\UserForm;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Component\Pager\PaginatorInterface;        // <-- On ajoute cette ligne
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Request;       // <-- Et celle-ci
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -15,10 +16,28 @@ use Symfony\Component\Routing\Attribute\Route;
 final class UserController extends AbstractController
 {
     #[Route(name: 'app_user_index', methods: ['GET'])]
-    public function index(UserRepository $userRepository): Response
-    {
+    public function index(
+        UserRepository $userRepository,
+        PaginatorInterface $paginator,      // <-- Injection du paginator
+        Request $request                    // <-- Injection de la requête pour récupérer le paramètre “page”
+    ): Response {
+        // 1. On construit un QueryBuilder pour récupérer tous les utilisateurs, triés par ID
+        $qb = $userRepository->createQueryBuilder('u')
+            ->orderBy('u.id', 'ASC');
+
+        // 2. On récupère la page courante dans l’URL (exemple ?page=1, ?page=2, …), par défaut “1”
+        $page = $request->query->getInt('page', 1);
+
+        // 3. On appelle le paginator pour découper le QueryBuilder en pages de 10 utilisateurs
+        $pagination = $paginator->paginate(
+            $qb,    // la QueryBuilder
+            $page,  // numéro de la page courante
+            10      // nombre d’éléments par page
+        );
+
+        // 4. On envoie l’objet "pagination" à Twig
         return $this->render('user/index.html.twig', [
-            'users' => $userRepository->findAll(),
+            'pagination' => $pagination,
         ]);
     }
 
