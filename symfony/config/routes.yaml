@@ -3,3 +3,9 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+home:
+    path: /
+    controller: App\Controller\DefaultController::index
+user_index:
+    path: /user
+    controller: App\Controller\UserController::index

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   ################################
   # 1) Service MySQL / MariaDB   #
@@ -23,12 +21,12 @@ services:
   ##############################
   php:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ./symfony
+      dockerfile: ../Dockerfile
     container_name: symfony_php
     restart: unless-stopped
     volumes:
-      - ./:/var/www/html:delegated
+      - ./symfony:/var/www/html:delegated
     environment:
       DATABASE_URL: "mysql://symfony:symfonypass@db:3306/symfony?serverVersion=8.0"
     ports:
@@ -44,11 +42,11 @@ services:
     container_name: symfony_nginx
     restart: unless-stopped
     volumes:
-      - ./:/var/www/html:ro
+      - ./symfony:/var/www/html:ro
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
     ports:
       - "80:80"
-      #- "443:443"     # À configurer si SSL
+      #- "443:443"     # Ã€ configurer si SSL
     depends_on:
       - php
 

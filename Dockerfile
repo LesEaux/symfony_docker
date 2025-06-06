@@ -1,13 +1,12 @@
 ############################################
-# 1. Image PHP-FPM 8.3 (basée sur Alpine)  #
+# IMAGE PHP-FPM 8.3 (Alpine)                #
 ############################################
 FROM php:8.3-fpm-alpine
 
-# Environnement, réglages
 ENV COMPOSER_ALLOW_SUPERUSER=1 \
     SYMFONY_ENV=prod
 
-# Installer dépendances système
+# 1) Installer les paquets système nécessaires
 RUN apk add --no-cache \
     git \
     unzip \
@@ -19,29 +18,30 @@ RUN apk add --no-cache \
     zlib-dev \
     curl
 
-# Installer extensions PHP nécessaires
+# 2) Installer les extensions PHP requises
 RUN docker-php-ext-install pdo_mysql mbstring intl opcache zip
 
-# Installer Composer globalement
+# 3) Installer Composer globalement
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Définir le répertoire de travail
+# 4) Définir le working directory
 WORKDIR /var/www/html
 
-# Copier uniquement composer.json & composer.lock (pour tirer parti du build cache)
+# 5) Copier composer.json & composer.lock pour profiter du cache Docker
 COPY composer.json composer.lock ./
 
-# Installer les dépendances PHP
-RUN composer install --no-dev --optimize-autoloader --no-progress
+# 6) Installer les dépendances PHP SANS exécuter les scripts (pour éviter l’erreur bin/console)
+RUN composer install --no-dev --optimize-autoloader --no-progress --no-scripts
 
-# Copier le reste du code
+# 7) Copier tout le code (src/, config/, public/, bin/, …)
 COPY . .
 
-# Droits sur le dossier var
+# 8) Exécuter manuellement les scripts Symfony qui étaient bloqués (vidage du cache, installation des assets, etc.)
+RUN php bin/console cache:clear --no-warmup --env=prod && \
+    php bin/console cache:warmup --env=prod
+
+# 9) Ajuster les droits sur var/ (c’est important pour Symfony)
 RUN chown -R www-data:www-data /var/www/html/var
 
-# Exposer le port utilisé pour PHP-FPM
 EXPOSE 9000
-
-# Lancer PHP-FPM
 CMD ["php-fpm"]
