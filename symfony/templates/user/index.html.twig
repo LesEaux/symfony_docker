@@ -1,0 +1,64 @@
+{# templates/user/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des utilisateurs{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+
+            {# Titre centré #}
+            <h1 class="text-center mb-4">Liste des utilisateurs</h1>
+
+            {# Table responsive et centrée #}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Roles</th>
+                            <th scope="col">Nom</th>
+                            <th scope="col">Prénom</th>
+                            <th scope="col" class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ user.id }}</td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
+                                <td>{{ user.nom }}</td>
+                                <td>{{ user.prenom }}</td>
+                                <td class="text-center">
+                                    <a class="btn btn-sm btn-outline-secondary me-2"
+                                       href="{{ path('app_user_show', {'id': user.id}) }}">
+                                        Voir
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       href="{{ path('app_user_edit', {'id': user.id}) }}">
+                                        Éditer
+                                    </a>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">Aucun utilisateur trouvé</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {# Bouton "Créer un nouvel utilisateur" centré #}
+            <div class="text-center mt-4">
+                <a class="btn btn-success" href="{{ path('app_user_new') }}">
+                    Créer un nouvel utilisateur
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
