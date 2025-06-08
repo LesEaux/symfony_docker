@@ -1,13 +1,99 @@
+{# templates/user/edit.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Edit User{% endblock %}
+{% block title %}Modifier un utilisateur{% endblock %}
 
 {% block body %}
-    <h1>Edit User</h1>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
 
-    {{ include('user/_form.html.twig', {'button_label': 'Update'}) }}
+      <div class="card bg-light shadow-sm mx-auto">
+        <div class="card-body p-4">
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="h4 mb-0">Modifier l’utilisateur</h2>
+            <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-arrow-left"></i> Retour
+            </a>
+          </div>
 
-    {{ include('user/_delete_form.html.twig') }}
+          {{ form_start(form) }}
+
+          {# Email #}
+          <div class="row mb-3 align-items-center">
+            <div class="col-sm-3 text-end">
+              <label class="form-label mb-0">Email :</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-sm'}}) }}
+              {{ form_errors(form.email) }}
+            </div>
+          </div>
+
+          {# Nom #}
+          <div class="row mb-3 align-items-center">
+            <div class="col-sm-3 text-end">
+              <label class="form-label mb-0">Nom :</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-sm'}}) }}
+              {{ form_errors(form.nom) }}
+            </div>
+          </div>
+
+          {# Prénom #}
+          <div class="row mb-3 align-items-center">
+            <div class="col-sm-3 text-end">
+              <label class="form-label mb-0">Prénom :</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form_widget(form.prenom, {'attr': {'class': 'form-control form-control-sm'}}) }}
+              {{ form_errors(form.prenom) }}
+            </div>
+          </div>
+
+          {# Password #}
+          <div class="row mb-3 align-items-center">
+            <div class="col-sm-3 text-end">
+              <label class="form-label mb-0">Mot de passe :</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form_widget(form.password, {'attr': {'class': 'form-control form-control-sm'}}) }}
+              {{ form_errors(form.password) }}
+            </div>
+          </div>
+
+          {# Rôles #}
+          <div class="row mb-4 align-items-center">
+            <div class="col-sm-3 text-end">
+              <label class="form-label mb-0">Rôle :</label>
+            </div>
+            <div class="col-sm-9">
+              {{ form_widget(form.roles, {'attr': {'class': 'form-select form-select-sm'}}) }}
+              {{ form_errors(form.roles) }}
+            </div>
+          </div>
+
+          {# Boutons #}
+          <div class="row">
+            <div class="col-sm-3"></div>
+            <div class="col-sm-9 text-end">
+              <button type="submit" class="btn btn-primary me-2">
+                <i class="bi bi-save"></i> Enregistrer
+              </button>
+              <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">
+                Annuler
+              </a>
+            </div>
+          </div>
+
+          {{ form_end(form) }}
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
 {% endblock %}
