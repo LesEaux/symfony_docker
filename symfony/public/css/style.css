@@ -1,0 +1,16 @@
+/* public/css/custom.css */
+
+.table.table-bordered thead.argentinian-blue th {
+  background-color: #63ADF2 !important;
+  color: #000            !important;
+}
+
+.table.table-bordered thead.uranian-blue th {
+  background-color: #A7CCED !important;
+  color: #000            !important;
+}
+
+
+.table.table-striped > tbody > tr:nth-of-type(odd) {
+  background-color: #E9F7FF !important;
+}
