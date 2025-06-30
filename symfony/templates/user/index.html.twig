@@ -23,7 +23,6 @@
   {% import _self as macros %}
 
   {# Recherche par colonne #}
-  {# … au sein de votre formulaire de recherche … #}
   <form method="get" action="{{ path('app_user_index') }}" class="row g-2 align-items-end mb-3">
     <div class="col-md-3">
       <label class="form-label small">Email</label>
@@ -39,11 +38,6 @@
       <label class="form-label small">Prénom</label>
       <input type="text" name="prenom" class="form-control form-control-sm"
              value="{{ app.request.query.get('prenom') }}">
-    </div>
-    <div class="col-md-2">
-      <label class="form-label small">Rôle</label>
-      <input type="text" name="role" class="form-control form-control-sm"
-             value="{{ app.request.query.get('role') }}">
     </div>
     <div class="col-md-1 d-flex">
       {# Bouton Recherche #}
