@@ -6,11 +6,12 @@ use App\Entity\User;
 use App\Form\UserForm;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;        // <-- On ajoute cette ligne
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;       // <-- Et celle-ci
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[Route('/user')]
 final class UserController extends AbstractController
@@ -67,15 +68,23 @@ final class UserController extends AbstractController
 
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, UserPasswordHasherInterface $hasher): Response
     {
         $user = new User();
         $form = $this->createForm(UserForm::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $selectedRole = $form->get('roles')->getData();    // ex. "ROLE_ADMIN"
-            $user->setRoles([$selectedRole]);
+            // 1) récupère le mot de passe “en clair”
+            $plain = $form->get('plainPassword')->getData();
+
+            // 2) hache-le
+            $hashed = $hasher->hashPassword($user, $plain);
+            $user->setPassword($hashed);
+
+            // 3) gérer le rôle choisi
+            $role = $form->get('roles')->getData(); // ex. 'ROLE_UTILISATEUR'
+            $user->setRoles([$role]);
 
             $entityManager->persist($user);
             $entityManager->flush();

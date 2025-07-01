@@ -35,7 +35,12 @@ class UserForm extends AbstractType
                     'class' => 'form-select form-select-sm'
                 ],
             ])
-            ->add('password')
+            ->add('plainPassword', PasswordType::class, [
+                'label'    => 'Mot de passe',
+                'mapped'   => false,
+                'required' => true,
+                'attr'     => ['class' => 'form-control form-control-sm'],
+            ])
             ->add('nom')
             ->add('prenom')
         ;
