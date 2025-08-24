@@ -15,7 +15,7 @@ Un squelette de projet Symfony 6.x (PHP 8.3) entièrement Dockerisé, prêt à f
   - phpMyAdmin (optionnel)  
 - **MakerBundle** pour créer entités, CRUD, contrôleurs, etc.  
 - **Base d’ERP/CRM** :
-  - Entité `Client` + CRUD généré  
+  - Entité `User` + CRUD généré  
   - Page d’accueil  
 
 ---
