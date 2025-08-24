@@ -29,6 +29,9 @@ security:
                 path: /
             access_denied_url: /access-denied
 
+            login_throttling:
+                limiter: login
+
     # Contrôle d'accès aux URL selon les droits
     # Note: Uniquement le premier pris en compte, prend les plus spécifiques en premier
     access_control:
