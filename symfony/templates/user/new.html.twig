@@ -79,9 +79,11 @@
           <div class="row">
             <div class="col-sm-3"></div>
             <div class="col-sm-9 text-end">
-              <button type="submit" class="btn btn-primary me-2">
-                <i class="bi bi-check-lg"></i> Créer
-              </button>
+                {% if "ROLE_ADMIN" in app.user.roles %}
+                  <button type="submit" class="btn btn-primary me-2">
+                    <i class="bi bi-check-lg"></i> Créer
+                  </button>
+                {% endif %}
               <a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary">
                 Annuler
               </a>

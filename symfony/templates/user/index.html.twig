@@ -13,9 +13,11 @@
 
   <div class="row mb-3">
     <div class="col">
-      <a class="btn btn-success" href="{{ path('app_user_new') }}">
-        <i class="bi bi-plus-lg"></i> Ajouter un utilisateur
-      </a>
+      {% if 'ROLE_ADMIN' in app.user.roles %}
+        <a class="btn btn-success" href="{{ path('app_user_new') }}">
+          <i class="bi bi-plus-lg"></i> Ajouter un utilisateur
+        </a>
+      {% endif %}
     </div>
   </div>
 
@@ -71,7 +73,9 @@
           <th scope="col">
             {{ macros.sortable('Roles', 'u.roles') }}
           </th>
-          <th scope="col" class="text-center">Actions</th>
+            {% if 'ROLE_ADMIN' in app.user.roles %}
+                <th scope="col" class="text-center">Actions</th>
+            {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -85,21 +89,23 @@
                 <span class="badge bg-secondary me-1">{{ r }}</span>
               {% endfor %}
             </td>
-            <td class="text-center">
-              <a class="btn btn-sm btn-outline-primary me-1"
-                 href="{{ path('app_user_edit', {'id': user.id}) }}">
-                <i class="bi bi-pencil"></i>
-              </a>
-              <form method="post"
-                    action="{{ path('app_user_delete', {'id': user.id}) }}"
-                    class="d-inline"
-                    onsubmit="return confirm('Confirmer la suppression ?');">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                <button class="btn btn-sm btn-outline-danger">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
-            </td>
+            {% if 'ROLE_ADMIN' in app.user.roles %}
+                <td class="text-center">
+                  <a class="btn btn-sm btn-outline-primary me-1"
+                     href="{{ path('app_user_edit', {'id': user.id}) }}">
+                    <i class="bi bi-pencil"></i>
+                  </a>
+                  <form method="post"
+                        action="{{ path('app_user_delete', {'id': user.id}) }}"
+                        class="d-inline"
+                        onsubmit="return confirm('Confirmer la suppression ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                    <button class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </td>
+            {% endif %}
           </tr>
         {% else %}
           <tr>
