@@ -30,11 +30,12 @@ security:
             access_denied_url: /access-denied
 
     # Contrôle d'accès aux URL selon les droits
-    # Note: Uniquement le premier pris en compte
+    # Note: Uniquement le premier pris en compte, prend les plus spécifiques en premier
     access_control:
         - { path: ^/admin }
-        - { path: ^/user, roles: [ROLE_USER, ROLE_ADMIN] }
-        - { path: ^/client }
+        - { path: ^/user/new, roles: ROLE_ADMIN }
+        - { path: ^/user/\d+/edit, roles: ROLE_ADMIN }
+        - { path: ^/user, roles: [ ROLE_USER, ROLE_ADMIN ] }
 
 when@test:
     security:
