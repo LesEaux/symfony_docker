@@ -25,8 +25,8 @@ class UserForm extends AbstractType
             ->add('roles', ChoiceType::class, [
                 'label'    => 'Rôle',
                 'choices'  => [
-                    'Utilisateur'    => 'Utilisateur',
-                    'Administrateur' => 'Administrateur',
+                    'Utilisateur'    => 'ROLE_USER',
+                    'Administrateur' => 'ROLE_ADMIN',
                 ],
                 'mapped'   => false,              // ne touche pas directement à $user->roles
                 'multiple' => false,              // <select> simple
