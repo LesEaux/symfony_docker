@@ -14,7 +14,7 @@
     {% endblock %}
 </head>
 
-<body class="bg-white text-dark">
+<body class="bg-light text-dark">
 
     {# ================== SIDEBAR (aside) ================== #}
     <aside class="sidebar bg-dark border-end vh-100 position-fixed" style="width: 260px;">
@@ -63,7 +63,11 @@
           {# Exemple de header global, si besoin #}
           <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">VodableWeb - Application</h5>
-            <button class="btn btn-outline-secondary btn-sm">Déconnexion</button>
+            {% if app.user %}
+                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_logout') }}">Déconnexion</a>
+            {% else %}
+                <a class="btn btn-outline-secondary btn-sm" href="{{ path('app_login') }}">Connexion</a>
+            {% endif %}
           </div>
         </header>
         {# ==================================================== #}
