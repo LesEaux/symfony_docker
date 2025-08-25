@@ -37,6 +37,11 @@ Un squelette de projet Symfony 6.x (PHP 8.3) entièrement Dockerisé, prêt à f
    docker compose up -d --build
    ```
 
+   Possible également de cliquer sur le bouton `Use this temaplate`
+<img width="194" height="111" alt="image" src="https://github.com/user-attachments/assets/b639995f-42fd-4503-84b9-73f0405a0972" />
+
+Il faut penser à modifier le nom de votre projet dans les fichiers.
+
 2. **Lancer les conteneurs**
 
 ```bash
