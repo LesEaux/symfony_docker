@@ -1,41 +1,19 @@
 {% extends 'base.html.twig' %}
-
 {% block title %}Connexion{% endblock %}
-
 {% block body %}
-<div class="container mt-5" style="max-width: 400px;">
-    <h1 class="h3 mb-3">Connexion</h1>
-
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
-
-    <form method="post">
-
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-
-        <div class="mb-3">
-            <label for="inputEmail" class="form-label">Email</label>
-            <input type="email"
-                   value="{{ last_email }}"
-                   name="email"
-                   id="inputEmail"
-                   class="form-control"
-                   required autofocus>
-        </div>
-
-        <div class="mb-3">
-            <label for="inputPassword" class="form-label">Mot de passe</label>
-            <input type="password"
-                   name="password"
-                   id="inputPassword"
-                   class="form-control"
-                   required>
-        </div>
-
-        <button class="btn btn-primary w-100" type="submit">
-            Se connecter
-        </button>
-    </form>
+<div class="auth-layout">
+    <div class="auth-intro"><span class="auth-emblem"><i class="bi bi-shield-lock" aria-hidden="true"></i></span><p class="eyebrow">BIENVENUE SUR {{ app_name }}</p><h1>Ravi de vous retrouver.</h1><p>Connectez-vous pour accéder à votre espace de travail.</p></div>
+    <div class="card auth-card"><div class="card-body">
+        <h2 class="h5 mb-4">Connexion</h2>
+        {% if error %}<div class="alert alert-danger" role="alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>{% endif %}
+        <form method="post" data-turbo="false">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <div class="mb-4"><label for="inputEmail" class="form-label">Email ou identifiant</label><input type="text" value="{{ last_email }}" name="email" id="inputEmail" class="form-control" placeholder="Votre email ou identifiant" autocomplete="username" required autofocus></div>
+            <div class="mb-3"><label for="inputPassword" class="form-label">Mot de passe</label><input type="password" name="password" id="inputPassword" class="form-control" placeholder="Votre mot de passe" autocomplete="current-password" required></div>
+            <div class="text-end mb-4"><a class="small text-decoration-none" href="{{ path('app_forgot_password') }}">Mot de passe oublié ?</a></div>
+            <button class="btn btn-primary w-100" type="submit">Se connecter<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></button>
+        </form>
+    </div></div>
+    <p class="auth-footnote"><i class="bi bi-lock me-1" aria-hidden="true"></i>Votre espace {{ app_company }}</p>
 </div>
 {% endblock %}

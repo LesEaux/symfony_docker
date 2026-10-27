@@ -19,6 +19,18 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    /** @return array{total: int, active: int, admins: int} */
+    public function getDashboardStats(): array
+    {
+        return [
+            'total' => $this->count([]),
+            'active' => $this->count(['isActive' => true]),
+            'admins' => (int) $this->createQueryBuilder('u')->select('COUNT(u.id)')
+                ->where('u.roles LIKE :role')->andWhere('u.isActive = true')
+                ->setParameter('role', '%"ROLE_ADMIN"%')->getQuery()->getSingleScalarResult(),
+        ];
+    }
+
     /**
      * Used to upgrade (rehash) the user's password automatically over time.
      */

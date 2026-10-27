@@ -2,8 +2,11 @@ framework:
     asset_mapper:
         # The paths to make available to the asset mapper.
         paths:
-            - assets/
+            assets/: ''
+            vendor/twbs/bootstrap/dist/: bootstrap
+            vendor/twbs/bootstrap-icons/font/: bootstrap-icons
         missing_import_mode: strict
+        importmap_polyfill: false
 
 when@prod:
     framework:

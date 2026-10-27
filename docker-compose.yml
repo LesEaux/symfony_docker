@@ -1,71 +1,66 @@
+# Local development stack. See README.md for initialization.
 services:
-  ################################
-  # 1) Service MySQL / MariaDB   #
-  ################################
   db:
-    image: mysql:8.0
-    container_name: symfony_db
+    image: mysql:8.4
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
       MYSQL_DATABASE: symfony
       MYSQL_USER: symfony
       MYSQL_PASSWORD: symfonypass
     volumes:
       - db_data:/var/lib/mysql
-    ports:
-      - "3306:3306"   # Expose localement si besoin, sinon retirer
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
 
-  ##############################
-  # 2) Service PHP-FPM (app)   #
-  ##############################
   php:
     build:
-      context: ./symfony
-      dockerfile: ../Dockerfile
-    container_name: symfony_php
+      context: .
+      target: development
     restart: unless-stopped
     volumes:
-      - ./symfony:/var/www/html:delegated
-    environment:
-      DATABASE_URL: "mysql://symfony:symfonypass@db:3306/symfony?serverVersion=8.0"
-    ports:
-      - "9000:9000"  # Expose pour Nginx
+      - ./symfony:/var/www/html
+      - vendor_data:/var/www/html/vendor
+      - var_data:/var/www/html/var
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
-  ################################
-  # 3) Service Nginx (reverse)   #
-  ################################
   nginx:
-    image: nginx:1.25-alpine
-    container_name: symfony_nginx
+    image: nginx:stable-alpine
     restart: unless-stopped
     volumes:
       - ./symfony:/var/www/html:ro
       - ./docker/nginx/conf.d/:/etc/nginx/conf.d/:ro
     ports:
-      - "80:80"
-      #- "443:443"     # À configurer si SSL
+      - "127.0.0.1:${HTTP_PORT:-80}:80"
     depends_on:
       - php
 
-  #####################################
-  # 4) (Optionnel) phpMyAdmin         #
-  #####################################
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: symfony_phpmyadmin
+    image: phpmyadmin:5-apache
+    profiles: [tools]
     restart: unless-stopped
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: symfony
-      PMA_PASSWORD: symfonypass
     ports:
-      - "8080:80"
+      - "127.0.0.1:${PHPMYADMIN_PORT:-8080}:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
+  mailer:
+    image: axllent/mailpit:v1.32.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"
 
 volumes:
   db_data:
+  vendor_data:
+  var_data:

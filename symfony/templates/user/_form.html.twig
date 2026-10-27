@@ -1,4 +1,15 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
+    {{ form_errors(form) }}
+    <div class="row">
+        <div class="col-md-6">{{ form_row(form.prenom) }}</div>
+        <div class="col-md-6">{{ form_row(form.nom) }}</div>
+    </div>
+    {{ form_row(form.email) }}
+    {{ form_row(form.roles) }}
+    {{ form_row(form.plainPassword) }}
+    {{ form_row(form.isActive) }}
+    <div class="d-flex flex-wrap gap-2">
+        <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+        <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}">Annuler</a>
+    </div>
 {{ form_end(form) }}

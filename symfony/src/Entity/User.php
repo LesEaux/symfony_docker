@@ -4,13 +4,16 @@ namespace App\Entity;
 
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\EquatableInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[UniqueEntity(fields: ['email'], message: 'Cette adresse email est déjà utilisée.')]
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, EquatableInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,14 +21,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
-    /**
-    * @ORM\Column(type="string", length=180, unique=true)
-    *
-    * @Assert\NotBlank(message="L’adresse email ne peut pas être vide.")
-    * @Assert\Email(
-    *     message="L’adresse '{{ value }}' n’est pas un email valide."
-    * )
-    */
+    #[Assert\NotBlank]
+    #[Assert\Email]
+    #[Assert\Length(max: 180)]
     private ?string $email = null;
 
     /**
@@ -41,10 +39,95 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Length(max: 255)]
     private ?string $prenom = null;
+
+    #[ORM\Column(options: ['default' => true])]
+    private bool $isActive = true;
+
+    #[ORM\Column(length: 5, options: ['default' => 'dark'])]
+    #[Assert\Choice(choices: ['dark', 'light'])]
+    private string $theme = 'dark';
+
+    public function getTheme(): string
+    {
+        return $this->theme;
+    }
+
+    public function setTheme(string $theme): static
+    {
+        if (!in_array($theme, ['dark', 'light'], true)) {
+            throw new \InvalidArgumentException('Thème invalide.');
+        }
+        $this->theme = $theme;
+
+        return $this;
+    }
+
+    #[ORM\Column(length: 64, nullable: true)]
+    private ?string $passwordResetToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordResetExpiresAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordResetRequestedAt = null;
+
+    public function isActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    public function setIsActive(bool $active): static
+    {
+        $this->isActive = $active;
+        if (!$active) {
+            $this->clearPasswordReset();
+        }
+
+        return $this;
+    }
+
+    public function isActiveAdmin(): bool
+    {
+        return $this->isActive && in_array('ROLE_ADMIN', $this->roles, true);
+    }
+
+    public function isEqualTo(UserInterface $user): bool
+    {
+        return $user instanceof self && $this->email === $user->email
+            && $this->password === $user->password && $this->roles === $user->roles
+            && $this->isActive === $user->isActive;
+    }
+
+    public function requestPasswordReset(string $hash, \DateTimeImmutable $now): void
+    {
+        $this->passwordResetToken = $hash;
+        $this->passwordResetRequestedAt = $now;
+        $this->passwordResetExpiresAt = $now->modify('+15 minutes');
+    }
+
+    public function getPasswordResetExpiresAt(): ?\DateTimeImmutable
+    {
+        return $this->passwordResetExpiresAt;
+    }
+
+    public function getPasswordResetRequestedAt(): ?\DateTimeImmutable
+    {
+        return $this->passwordResetRequestedAt;
+    }
+
+    public function clearPasswordReset(): void
+    {
+        $this->passwordResetToken = null;
+        $this->passwordResetExpiresAt = null;
+    }
 
     public function getId(): ?int
     {
@@ -58,6 +141,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
+        if ($this->email !== $email) {
+            $this->clearPasswordReset();
+        }
         $this->email = $email;
 
         return $this;
@@ -79,6 +165,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
+        $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
     }
@@ -104,6 +191,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
+        $this->clearPasswordReset();
 
         return $this;
     }

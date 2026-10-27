@@ -4,15 +4,24 @@ framework:
 
     # Note that the session will be started ONLY if you read or write from it.
     session: true
-
+    default_locale: fr
     rate_limiter:
-        login:
-            policy: 'fixed_window'
+        password_reset:
+            policy: sliding_window
             limit: 5
-            interval: '1 minute'
+            interval: '15 minutes'
 
 when@test:
     framework:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+
+when@prod:
+    framework:
+        trusted_proxies: '%env(TRUSTED_PROXIES)%'
+        trusted_headers: ['x-forwarded-for', 'x-forwarded-proto', 'x-forwarded-port']
+        session:
+            cookie_secure: true
+            cookie_httponly: true
+            cookie_samesite: lax

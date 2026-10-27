@@ -1,5 +1,9 @@
 twig:
     file_name_pattern: '*.twig'
+    form_themes: ['bootstrap_5_layout.html.twig']
+    globals:
+        app_name: '%app.name%'
+        app_company: '%app.company%'
 
 when@test:
     twig:

@@ -1,154 +1,50 @@
-{# templates/user/index.html.twig #}
 {% extends 'base.html.twig' %}
-
-{% block title %}Liste des utilisateurs{% endblock %}
-
+{% block title %}Utilisateurs{% endblock %}
 {% block body %}
-<div class="container mt-5">
-  <div class="row mb-4">
-    <div class="col text-center">
-      <h1>Liste des utilisateurs</h1>
-    </div>
-  </div>
-
-  <div class="row mb-3">
-    <div class="col">
-      {% if 'ROLE_ADMIN' in app.user.roles %}
-        <a class="btn btn-success" href="{{ path('app_user_new') }}">
-          <i class="bi bi-plus-lg"></i> Ajouter un utilisateur
-        </a>
-      {% endif %}
-    </div>
-  </div>
-
-  {# Import du macro sortable #}
-  {% import _self as macros %}
-
-  {# Recherche par colonne #}
-  <form method="get" action="{{ path('app_user_index') }}" class="row g-2 align-items-end mb-3">
-    <div class="col-md-3">
-      <label class="form-label small">Email</label>
-      <input type="text" name="email" class="form-control form-control-sm"
-             value="{{ app.request.query.get('email') }}">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label small">Nom</label>
-      <input type="text" name="nom" class="form-control form-control-sm"
-             value="{{ app.request.query.get('nom') }}">
-    </div>
-    <div class="col-md-3">
-      <label class="form-label small">Prénom</label>
-      <input type="text" name="prenom" class="form-control form-control-sm"
-             value="{{ app.request.query.get('prenom') }}">
-    </div>
-    <div class="col-md-1 d-flex">
-      {# Bouton Recherche #}
-      <button type="submit" class="btn btn-primary btn-sm me-1 w-100">
-        <i class="bi bi-search"></i>
-      </button>
-      {# Bouton Réinitialiser #}
-      <a href="{{ path(app.request.attributes.get('_route')) }}"
-         class="btn btn-secondary btn-sm w-100"
-         title="Effacer les filtres">
-        <i class="bi bi-x-circle"></i>
-      </a>
-    </div>
-  </form>
-
-
-  {# Tableau responsive avec tri personnalisé #}
-  <div class="table-responsive">
-    <table class="table table-bordered table-hover align-middle">
-      <thead class="table-primary">
-        <tr>
-          <th scope="col">
-            {{ macros.sortable('Email', 'u.email') }}
-          </th>
-          <th scope="col">
-            {{ macros.sortable('Nom', 'u.nom') }}
-          </th>
-          <th scope="col">
-            {{ macros.sortable('Prénom', 'u.prenom') }}
-          </th>
-          <th scope="col">
-            {{ macros.sortable('Roles', 'u.roles') }}
-          </th>
-            {% if 'ROLE_ADMIN' in app.user.roles %}
-                <th scope="col" class="text-center">Actions</th>
-            {% endif %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for user in pagination %}
-          <tr>
-            <td>{{ user.email }}</td>
-            <td>{{ user.nom }}</td>
-            <td>{{ user.prenom }}</td>
-            <td>
-              {% for r in user.roles %}
-                <span class="badge bg-secondary me-1">{{ r }}</span>
-              {% endfor %}
-            </td>
-            {% if 'ROLE_ADMIN' in app.user.roles %}
-                <td class="text-center">
-                  <a class="btn btn-sm btn-outline-primary me-1"
-                     href="{{ path('app_user_edit', {'id': user.id}) }}">
-                    <i class="bi bi-pencil"></i>
-                  </a>
-                  <form method="post"
-                        action="{{ path('app_user_delete', {'id': user.id}) }}"
-                        class="d-inline"
-                        onsubmit="return confirm('Confirmer la suppression ?');">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                    <button class="btn btn-sm btn-outline-danger">
-                      <i class="bi bi-trash"></i>
-                    </button>
-                  </form>
-                </td>
-            {% endif %}
-          </tr>
-        {% else %}
-          <tr>
-            <td colspan="5" class="text-center">Aucun utilisateur trouvé</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  {# Pagination #}
-  <div class="d-flex justify-content-center mt-4">
-    {{ knp_pagination_render(pagination) }}
-  </div>
+<div class="page-heading">
+    <div><p class="eyebrow">VOTRE ÉQUIPE</p><h1>Utilisateurs</h1><p class="page-description">Retrouvez et gérez les comptes de votre espace de travail.</p></div>
+    {% if is_granted('ROLE_ADMIN') %}<a class="btn btn-primary" href="{{ path('app_user_new') }}"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Ajouter un utilisateur</a>{% endif %}
 </div>
-
-{# ---------------------------------------------------------------- #}
-{# Macro pour générer un lien de tri sans style de lien par défaut, #}
-{# avec flèche montée/descente selon l'état courant               #}
-{% macro sortable(label, field) %}
-  {# Récupère les paramètres GET actuels #}
-  {% set params = app.request.query.all %}
-  {# Nom des paramètres standard #}
-  {% set sortParam = 'sort' %}
-  {% set dirParam  = 'direction' %}
-  {% set currentSort = params[sortParam]|default('') %}
-  {% set currentDir  = params[dirParam]|default('asc') %}
-  {# Calcule la prochaine direction #}
-  {% if currentSort == field and currentDir == 'asc' %}
-    {% set nextDir = 'desc' %}
-  {% else %}
-    {% set nextDir = 'asc' %}
-  {% endif %}
-  {# Merge les paramètres en réinitialisant la page à 1 #}
-  {% set newParams = params|merge({ (sortParam): field, (dirParam): nextDir, page: 1 }) %}
-  <a href="{{ path(app.request.attributes.get('_route'), newParams) }}"
-     class="text-dark text-decoration-none fw-semibold">
-    {{ label }}
-    {% if currentSort == field %}
-      <i class="bi bi-chevron-{{ currentDir == 'asc' ? 'up' : 'down' }} ms-1"></i>
-    {% endif %}
-  </a>
-{% endmacro %}
-{# ---------------------------------------------------------------- #}
-
+<div class="card filter-panel"><form method="get" action="{{ path('app_user_index') }}" class="row g-3 align-items-end">
+    {% for field, label in {email: 'Email', nom: 'Nom', prenom: 'Prénom'} %}
+        <div class="col-sm-6 col-lg-3">
+            <label class="form-label" for="filter-{{ field }}">{{ label }}</label>
+            <input id="filter-{{ field }}" name="{{ field }}" class="form-control" value="{{ app.request.query.get(field) }}">
+        </div>
+    {% endfor %}
+    <div class="col-sm-6 col-lg-3 d-flex gap-2">
+        <button class="btn btn-primary">Rechercher</button>
+        <a class="btn btn-outline-secondary" href="{{ path('app_user_index') }}" aria-label="Effacer les filtres">Effacer</a>
+    </div>
+</form></div>
+<div class="card overflow-hidden"><div class="table-responsive">
+<table class="table directory-table table-hover align-middle mb-0">
+    <caption class="visually-hidden">Annuaire des utilisateurs, avec leur rôle et l’état du compte.</caption>
+    <thead><tr>
+        <th scope="col">{{ knp_pagination_sortable(pagination, 'Email', 'u.email') }}</th>
+        <th scope="col">{{ knp_pagination_sortable(pagination, 'Nom', 'u.nom') }}</th>
+        <th scope="col">{{ knp_pagination_sortable(pagination, 'Prénom', 'u.prenom') }}</th>
+        <th scope="col">Rôle</th><th scope="col">État</th><th scope="col">Actions</th>
+    </tr></thead>
+    <tbody>
+    {% for user in pagination %}
+        <tr>
+            <td class="user-email">{{ user.email }}</td><td class="user-name">{{ user.nom }}</td><td>{{ user.prenom }}</td>
+            <td><span class="role-badge {{ 'ROLE_ADMIN' in user.roles ? 'admin' : '' }}">{{ 'ROLE_ADMIN' in user.roles ? 'Administrateur' : 'Utilisateur' }}</span></td>
+            <td><span class="status-badge {{ user.active ? '' : 'inactive' }}">{{ user.active ? 'Actif' : 'Désactivé' }}</span></td>
+            <td><div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm btn-outline-secondary" href="{{ path('app_user_show', {id: user.id}) }}" aria-label="Voir {{ user.email }}">Voir</a>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a class="btn btn-sm btn-outline-primary" href="{{ path('app_user_edit', {id: user.id}) }}" aria-label="Modifier {{ user.email }}">Modifier</a>
+                    {{ include('user/_delete_form.html.twig') }}
+                {% endif %}
+            </div></td>
+        </tr>
+    {% else %}
+        <tr><td colspan="6" class="text-center py-4">Aucun utilisateur trouvé.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div></div>
+<div class="d-flex justify-content-center mt-4">{{ knp_pagination_render(pagination) }}</div>
 {% endblock %}

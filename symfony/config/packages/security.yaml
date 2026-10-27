@@ -16,9 +16,11 @@ security:
         main:
             lazy: true
             provider: app_user_provider
+            user_checker: App\Security\UserChecker
             custom_authenticator: App\Security\LoginAuthenticator
             logout:
                 path: app_logout
+                enable_csrf: true
                 # where to redirect after logout
                 # target: app_any_route
 
@@ -30,15 +32,21 @@ security:
             access_denied_url: /access-denied
 
             login_throttling:
-                limiter: 'limiter.login'
+                max_attempts: 5
+                interval: '1 minute'
 
     # Contrôle d'accès aux URL selon les droits
     # Note: Uniquement le premier pris en compte, prend les plus spécifiques en premier
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+
     access_control:
-        - { path: ^/admin }
-        - { path: ^/user/new, roles: ROLE_ADMIN }
-        - { path: ^/user/\d+/edit, roles: ROLE_ADMIN }
-        - { path: ^/user, roles: [ ROLE_USER, ROLE_ADMIN ] }
+        - { path: '^/admin(?:/|$)', roles: ROLE_ADMIN }
+        - { path: '^/user/new$', roles: ROLE_ADMIN }
+        - { path: '^/user/\d+/edit$', roles: ROLE_ADMIN }
+        - { path: '^/user/\d+$', methods: [POST], roles: ROLE_ADMIN }
+        - { path: '^/user(?:/|$)', roles: ROLE_USER }
+        - { path: '^/profile(?:/|$)', roles: IS_AUTHENTICATED_FULLY }
 
 when@test:
     security:

@@ -2,9 +2,9 @@
 
 namespace App\Security;
 
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
@@ -22,17 +22,26 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator) {}
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+        #[Autowire('%kernel.environment%')] private string $environment,
+    ) {
+    }
 
     public function authenticate(Request $request): Passport
     {
         // Récupère les champs envoyés en POST
-        $email    = $request->request->get('email', '');
+        $email = $request->request->get('email', '');
         $password = $request->request->get('password', '');
-        $csrfToken= $request->request->get('_csrf_token', '');
+        $csrfToken = $request->request->get('_csrf_token', '');
 
         // Mémoriser l’email en cas d’erreur
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
+
+        // The local development account retains a valid email for profile validation.
+        if (in_array($this->environment, ['dev', 'test'], true) && $email === 'root') {
+            $email = 'root@example.test';
+        }
 
         return new Passport(
             new UserBadge($email),
@@ -59,4 +68,3 @@ class LoginAuthenticator extends AbstractLoginFormAuthenticator
         return new RedirectResponse($this->urlGenerator->generate('home'));
     }
 }
-

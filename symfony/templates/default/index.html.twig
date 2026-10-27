@@ -1,10 +1,39 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}{{ title }} - Accueil{% endblock %}
-
+{% block title %}Tableau de bord{% endblock %}
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">{{ title }} - Accueil</h1>
-        <p>Cette page est la page principale...</p>
+<div class="page-heading">
+    <div><p class="eyebrow">VOTRE ESPACE AU QUOTIDIEN</p><h1>Tableau de bord</h1><p class="page-description">Bienvenue dans votre espace de travail{% if app.user %}, {{ app.user.prenom }}{% endif %}.</p></div>
+</div>
+{% if app.user %}
+<div class="stat-grid" aria-label="Vue d’ensemble des utilisateurs">
+    <div class="stat-card"><span class="stat-icon stat-icon-blue"><i class="bi bi-people-fill" aria-hidden="true"></i></span><div><span class="stat-label">Utilisateurs</span><strong class="stat-value">{{ stats.total }}</strong></div><i class="bi bi-chevron-right stat-arrow" aria-hidden="true"></i></div>
+    <div class="stat-card"><span class="stat-icon stat-icon-teal"><i class="bi bi-person-check-fill" aria-hidden="true"></i></span><div><span class="stat-label">Comptes actifs</span><strong class="stat-value">{{ stats.active }}</strong></div><i class="bi bi-chevron-right stat-arrow" aria-hidden="true"></i></div>
+    <div class="stat-card"><span class="stat-icon stat-icon-violet"><i class="bi bi-shield-check" aria-hidden="true"></i></span><div><span class="stat-label">Administrateurs actifs</span><strong class="stat-value">{{ stats.admins }}</strong></div><i class="bi bi-chevron-right stat-arrow" aria-hidden="true"></i></div>
+</div>
+<section class="card overflow-hidden" aria-labelledby="latest-users-title">
+    <div class="panel-heading"><div><h2 id="latest-users-title">Derniers utilisateurs</h2><p class="panel-description">Les derniers comptes de votre espace de travail.</p></div>
+        {% if is_granted('ROLE_ADMIN') %}<a class="btn btn-primary" href="{{ path('app_user_new') }}"><i class="bi bi-plus-lg me-2" aria-hidden="true"></i>Ajouter un utilisateur</a>{% endif %}
     </div>
+    <div class="table-responsive"><table class="table table-hover mb-0">
+        <caption class="visually-hidden">Les cinq derniers comptes créés</caption>
+        <thead><tr><th scope="col">Nom</th><th scope="col">Email</th><th scope="col">Rôle</th><th scope="col">Statut</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+        <tbody>{% for user in latest_users %}
+            <tr><td><div class="d-flex align-items-center gap-3"><span class="avatar {{ cycle(['avatar-blue', 'avatar-amber', 'avatar-violet', 'avatar-teal'], loop.index0) }}" aria-hidden="true">{{ user.prenom|slice(0, 1)|upper }}{{ user.nom|slice(0, 1)|upper }}</span><span class="user-name">{{ user.prenom }} {{ user.nom }}</span></div></td>
+                <td class="user-email">{{ user.email }}</td>
+                <td><span class="role-badge {{ 'ROLE_ADMIN' in user.roles ? 'admin' : '' }}">{{ 'ROLE_ADMIN' in user.roles ? 'Administrateur' : 'Utilisateur' }}</span></td>
+                <td><span class="status-badge {{ user.active ? '' : 'inactive' }}">{{ user.active ? 'Actif' : 'Désactivé' }}</span></td>
+                <td><a class="btn icon-button" href="{{ path('app_user_show', {id: user.id}) }}" aria-label="Voir {{ user.prenom }} {{ user.nom }}"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></a></td>
+            </tr>
+        {% else %}<tr><td colspan="5" class="text-center py-4 text-secondary">Aucun compte à afficher.</td></tr>{% endfor %}</tbody>
+    </table></div>
+    <div class="panel-footer"><a class="text-decoration-none" href="{{ path('app_user_index') }}">Voir tous les utilisateurs<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a></div>
+</section>
+{% else %}
+<div class="card form-card"><div class="card-body p-4 p-sm-5">
+    <span class="auth-emblem"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+    <h2 class="h4 mb-3">Tout commence ici.</h2>
+    <p class="page-description mb-4">Retrouvez votre équipe et gérez votre espace {{ app_company }} depuis une interface simple et organisée.</p>
+    <a class="btn btn-primary" href="{{ path('app_login') }}">Se connecter<i class="bi bi-arrow-right ms-2" aria-hidden="true"></i></a>
+</div></div>
+{% endif %}
 {% endblock %}

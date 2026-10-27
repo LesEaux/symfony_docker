@@ -22,10 +22,9 @@ class SecurityController extends AbstractController
         $lastEmail = $authenticationUtils->getLastUsername();
 
         return $this->render('security/login.html.twig', [
-            'last_email' =>  $lastEmail,
+            'last_email' => $lastEmail,
             'error' => $error,
         ]);
-
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
@@ -37,7 +36,6 @@ class SecurityController extends AbstractController
     #[Route('/access-denied', name: 'access_denied')]
     public function accessDenied(): Response
     {
-        return $this->render('security/access_denied.html.twig');
+        return $this->render('security/access_denied.html.twig', [], new Response(status: Response::HTTP_FORBIDDEN));
     }
-
 }
