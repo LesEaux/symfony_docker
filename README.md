@@ -65,6 +65,24 @@ En production, renseigner un serveur SMTP réel et un expéditeur autorisé.
 
 ## Personnalisation et ressources front
 
+### Logo de l’entreprise
+
+Les administrateurs disposent d’une page **Entreprise**, accessible dans le menu
+latéral et dans le menu du compte. Elle permet d’importer, remplacer ou supprimer
+le logo partagé par tous les utilisateurs. Formats : PNG, JPEG ou WebP, maximum
+2 Mo et 2 048 × 2 048 pixels. Sans logo, les icônes du template restent affichées.
+
+La table `company_settings` contient le champ nullable `logo_filename`. Les images
+sont conservées dans `symfony/var/company_logos`, en dehors du répertoire public,
+et affichées dans le menu, l’en-tête et à côté du nom de l’entreprise.
+La migration crée automatiquement la configuration partagée.
+
+En développement, le volume `var_data` conserve les fichiers. En production,
+le volume dédié `company_logos` les préserve lors des reconstructions d’images.
+Sauvegarder ce volume avec la base de données.
+
+### Identité visuelle
+
 Les réglages `APP_NAME`, `APP_COMPANY`, `APP_URL` et `MAILER_FROM` sont centralisés
 dans les variables d’environnement. Le nom de l’application et de l’entreprise
 s’affichent dans les pages et le menu.

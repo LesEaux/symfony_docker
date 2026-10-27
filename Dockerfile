@@ -19,7 +19,7 @@ RUN composer dump-autoload --no-dev --classmap-authoritative --no-scripts \
     && php bin/console importmap:install --no-interaction \
     && php bin/console asset-map:compile --env=prod \
     && rm -rf var/cache \
-    && mkdir -p var/cache var/log \
+    && mkdir -p var/cache var/log var/company_logos \
     && chown -R www-data:www-data var
 COPY --chmod=755 docker/php/production-entrypoint.sh /usr/local/bin/app-entrypoint
 USER www-data

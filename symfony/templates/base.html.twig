@@ -1,4 +1,5 @@
 {% set current_theme = app.user ? app.user.theme : 'dark' %}
+{% set company_logo = company_branding.logoUrl %}
 <!DOCTYPE html>
 <html lang="fr" data-bs-theme="{{ current_theme }}">
 <head>
@@ -22,7 +23,7 @@
 <aside id="main-menu" class="sidebar" aria-label="Navigation principale" data-menu-target="panel">
     <div class="sidebar-brand">
         <a class="brand" href="{{ path('home') }}">
-            <svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M3 6h9l9 19-5 10L3 6Z" fill="currentColor"/><path d="M27 6h10L23 35h-7L27 6Z" fill="currentColor" opacity=".65"/></svg>
+            {% if company_logo %}<img class="company-logo brand-company-logo" src="{{ company_logo }}" alt="Logo de {{ app_company }}">{% else %}<svg class="brand-mark" viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M3 6h9l9 19-5 10L3 6Z" fill="currentColor"/><path d="M27 6h10L23 35h-7L27 6Z" fill="currentColor" opacity=".65"/></svg>{% endif %}
             <span>{{ app_name }}</span>
         </a>
         <button class="btn icon-button d-lg-none" type="button" data-action="menu#close" aria-label="Fermer le menu"><i class="bi bi-x-lg" aria-hidden="true"></i></button>
@@ -41,9 +42,12 @@
                 <i class="bi bi-person-circle" aria-hidden="true"></i><span>Mon profil</span>
             </a>
         {% endif %}
+        {% if is_granted('ROLE_ADMIN') %}
+            <a class="nav-link {{ route == 'app_company_settings' ? 'active' : '' }}" href="{{ path('app_company_settings') }}" {% if route == 'app_company_settings' %}aria-current="page"{% endif %}><i class="bi bi-buildings" aria-hidden="true"></i><span>Entreprise</span></a>
+        {% endif %}
     </nav>
     <div class="sidebar-footer">
-        <span class="company-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+        {% if company_logo %}<img class="company-logo" src="{{ company_logo }}" alt="">{% else %}<span class="company-icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>{% endif %}
         <div class="min-width-0"><span class="company-name">{{ app_company }}</span><span class="company-caption">Votre espace, simplement.</span></div>
     </div>
 </aside>
@@ -51,7 +55,7 @@
     <header class="topbar">
         <div class="d-flex align-items-center gap-3 min-width-0">
             <button type="button" class="btn icon-button d-lg-none" aria-label="Ouvrir le menu" aria-controls="main-menu" aria-expanded="false" data-menu-target="toggle" data-action="menu#open"><i class="bi bi-list" aria-hidden="true"></i></button>
-            <span class="topbar-company-icon d-none d-sm-inline-flex"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+            {% if company_logo %}<img class="company-logo topbar-company-logo" src="{{ company_logo }}" alt="">{% else %}<span class="topbar-company-icon d-none d-sm-inline-flex"><i class="bi bi-buildings" aria-hidden="true"></i></span>{% endif %}
             <span class="topbar-company text-truncate">{{ app_company }}</span>
         </div>
         {% if app.user %}
@@ -63,6 +67,7 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><a class="dropdown-item" href="{{ path('app_profile') }}"><i class="bi bi-person me-2" aria-hidden="true"></i>Mon profil</a></li>
                     <li><a class="dropdown-item" href="{{ path('app_profile_password') }}"><i class="bi bi-key me-2" aria-hidden="true"></i>Changer mon mot de passe</a></li>
+                    {% if is_granted('ROLE_ADMIN') %}<li><a class="dropdown-item" href="{{ path('app_company_settings') }}"><i class="bi bi-buildings me-2" aria-hidden="true"></i>Configuration de l’entreprise</a></li>{% endif %}
                     <li><hr class="dropdown-divider"></li>
                     <li class="theme-menu-row"><span>Apparence</span>{{ include('profile/_theme_toggle.html.twig') }}</li>
                     <li class="theme-menu-status" data-theme-target="status"></li>
