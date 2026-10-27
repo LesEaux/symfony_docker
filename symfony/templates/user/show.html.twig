@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Utilisateur{% endblock %}
+{% block body %}
+<div class="page-heading"><div><p class="eyebrow">VOTRE ÉQUIPE</p><h1>Fiche utilisateur</h1><p class="page-description">Les informations du compte et ses accès.</p></div><a href="{{ path('app_user_index') }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2" aria-hidden="true"></i>Retour à l’annuaire</a></div>
+<div class="card form-card"><div class="card-body">
+    <div class="d-flex align-items-center gap-3 mb-4"><span class="avatar avatar-teal">{{ user.prenom|slice(0, 1)|upper }}{{ user.nom|slice(0, 1)|upper }}</span><div><h2 class="h5 mb-1">{{ user.prenom }} {{ user.nom }}</h2><span class="text-secondary small">{{ user.email }}</span></div></div>
+    <dl class="detail-list">
+        <dt>Email</dt><dd>{{ user.email }}</dd>
+        <dt>Rôle</dt><dd><span class="role-badge {{ 'ROLE_ADMIN' in user.roles ? 'admin' : '' }}">{{ 'ROLE_ADMIN' in user.roles ? 'Administrateur' : 'Utilisateur' }}</span></dd>
+        <dt>Statut</dt><dd><span class="status-badge {{ user.active ? '' : 'inactive' }}">{{ user.active ? 'Actif' : 'Désactivé' }}</span></dd>
+    </dl>
+    {% if is_granted('ROLE_ADMIN') %}<div class="mt-4 pt-4 border-top"><a href="{{ path('app_user_edit', {id: user.id}) }}" class="btn btn-primary"><i class="bi bi-pencil me-2" aria-hidden="true"></i>Modifier le compte</a></div>{% endif %}
+</div></div>
+{% endblock %}

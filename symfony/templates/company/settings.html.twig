@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+{% block title %}Entreprise{% endblock %}
+{% block body %}
+<div class="page-heading"><div><p class="eyebrow">CONFIGURATION</p><h1>Entreprise</h1><p class="page-description">Personnalisez l’identité de {{ app_company }} dans votre espace de travail.</p></div></div>
+<div class="card form-card"><div class="card-body">
+    <h2 class="h5 mb-3">Logo de l’entreprise</h2>
+    <div class="company-logo-preview mb-4">
+        {% if company_logo %}<img src="{{ company_logo }}" alt="Logo actuel de {{ app_company }}">{% else %}<i class="bi bi-buildings" aria-hidden="true"></i><span class="text-secondary small">Aucun logo pour le moment</span>{% endif %}
+    </div>
+    {{ form_start(form) }}
+        {{ form_errors(form) }}
+        {{ form_row(form.logo) }}
+        {{ form_row(form.removeLogo) }}
+        <p class="small text-secondary">Le logo est partagé par tous les utilisateurs. Il apparaît dans le menu et à côté du nom de l’entreprise.</p>
+        <div class="d-flex flex-wrap gap-2 mt-4"><button class="btn btn-primary">Enregistrer le logo</button><a class="btn btn-outline-secondary" href="{{ path('home') }}">Retour</a></div>
+    {{ form_end(form) }}
+</div></div>
+{% endblock %}

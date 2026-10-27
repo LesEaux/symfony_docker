@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+{% block title %}Mon profil{% endblock %}
+{% block body %}
+<div class="card form-card shadow-sm"><div class="card-body p-4">
+    <h1 class="h3 mb-4">Mon profil</h1>
+    <div class="profile-appearance mb-4"><div><h2 class="h6 mb-1">Apparence</h2><p class="small text-secondary mb-0">Choisissez votre thème.</p></div>{{ include('profile/_theme_toggle.html.twig') }}</div>
+    <p class="small text-secondary theme-feedback" data-theme-target="status"></p>
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+        <button class="btn btn-primary">Enregistrer</button>
+    {{ form_end(form) }}
+    <a class="d-inline-block mt-3" href="{{ path('app_profile_password') }}">Changer mon mot de passe</a>
+</div></div>
+{% endblock %}

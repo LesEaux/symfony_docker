@@ -1,0 +1,55 @@
+# Standalone production stack: docker compose --env-file .env.production -f compose.prod.yaml ...
+services:
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    volumes:
+      - production_db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  php:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    volumes:
+      - company_logos:/var/www/html/var/company_logos
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      APP_SECRET: ${APP_SECRET:?Set APP_SECRET}
+      APP_NAME: ${APP_NAME:-VodableWeb}
+      APP_COMPANY: ${APP_COMPANY:-Mon entreprise}
+      APP_URL: ${APP_URL:?Set the public HTTPS URL}
+      DATABASE_URL: ${DATABASE_URL:?Set the production database URL}
+      MAILER_DSN: ${MAILER_DSN:?Set the SMTP DSN}
+      MAILER_FROM: ${MAILER_FROM:?Set the sender email}
+      TRUSTED_PROXIES: ${TRUSTED_PROXIES:-127.0.0.1}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  nginx:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${HTTP_PORT:-8088}:80"
+    depends_on:
+      php:
+        condition: service_healthy
+
+volumes:
+  production_db:
+  company_logos:

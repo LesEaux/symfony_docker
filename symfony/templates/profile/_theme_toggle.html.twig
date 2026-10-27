@@ -1,0 +1,9 @@
+<form action="{{ path('app_profile_theme') }}" method="post" data-action="submit->theme#toggle" class="theme-preference" data-turbo="false">
+    <input type="hidden" name="_token" value="{{ csrf_token('theme_preference') }}">
+    <input type="hidden" name="theme" value="{{ app.user.theme == 'dark' ? 'light' : 'dark' }}" data-theme-target="input">
+    <button class="theme-toggle" type="submit" role="switch" aria-label="Mode sombre" aria-checked="{{ app.user.theme == 'dark' ? 'true' : 'false' }}" data-theme-target="button">
+        <i class="bi {{ app.user.theme == 'dark' ? 'bi-moon-stars' : 'bi-sun' }}" aria-hidden="true" data-theme-target="icon"></i>
+        <span data-theme-target="label">{{ app.user.theme == 'dark' ? 'Sombre' : 'Clair' }}</span>
+        <span class="theme-switch-track" aria-hidden="true"><span class="theme-switch-knob"></span></span>
+    </button>
+</form>
